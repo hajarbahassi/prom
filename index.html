@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Nejma Assistant - Système Corrigé</title>
+    <style>
+        :root {
+            --bg-page: #f2f4f7;
+            --chat-bg: #ffffff;
+            --sidebar-light: #f9fafb;
+            --accent-blue: #0078d4;
+            --text-main: #1c1c1c;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* --- Workspace Centré et Large --- */
+        #chatbot-workspace {
+            width: 70%;
+            height: 85vh;
+            min-width: 450px;
+            background: var(--chat-bg);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-premium);
+            border: 1px solid var(--border-color);
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* --- Header --- */
+        .chat-header {
+            padding: 30px 40px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .brand-logo {
+            width: 60px;
+            height: 60px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+        }
+
+        .brand-logo svg {
+            width: 40px;
+            fill: #000;
+        }
+
+        .header-text h1 {
+            font-size: 1.25rem;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .header-text p {
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* --- Conversation Area --- */
+        .message-area {
+            flex: 1;
+            padding: 40px 80px;
+            overflow-y: auto;
+            background: var(--sidebar-light);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            scroll-behavior: smooth;
+        }
+
+        .bubble {
+            max-width: 70%;
+            padding: 20px 28px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            border-radius: 18px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-bubble {
+            background: #ffffff;
+            color: var(--text-main);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .user-bubble {
+            background: var(--text-main);
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* --- Controls Area --- */
+        .action-area {
+            padding: 30px 80px;
+            background: #ffffff;
+            border-top: 1px solid var(--border-color);
+            border-radius: 0 0 20px 20px;
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .faq-button {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 14px 18px;
+            border-radius: 10px;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.2s ease;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-button:hover {
+            border-color: var(--text-main);
+            background: #f8fafc;
+        }
+
+        /* --- Typing --- */
+        .typing {
+            display: none;
+            padding: 10px 80px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            #chatbot-workspace { width: 100%; height: 100vh; border-radius: 0; }
+            .message-area, .action-area, .typing { padding: 20px; }
+            .faq-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="chatbot-workspace">
+        <header class="chat-header">
+            <div class="brand-logo">
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="2.5"/>
+                    <path d="M50 10 L50 50 L18 70 M50 50 L82 70" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                    <line x1="50" y1="10" x2="50" y2="50" stroke="currentColor" stroke-width="2.5"/>
+                </svg>
+            </div>
+            <div class="header-text">
+                <h1>Auto Nejma Assistant</h1>
+                <p>Service Client</p>
+            </div>
+        </header>
+
+        <main class="message-area" id="chatFlow">
+            <div class="bubble bot-bubble">
+                Bienvenue chez Auto Nejma. Comment puis-je vous aider aujourd'hui ?
+            </div>
+        </main>
+
+        <div id="typingIndicator" class="typing">L'assistant prépare une réponse...</div>
+
+        <footer class="action-area">
+            <div class="faq-grid" id="faqGrid">
+                </div>
+        </footer>
+    </div>
+
+    <script>
+        // Base de connaissance stricte
+        const CONTENT = [
+            { q: "Qui est Auto Nejma ?", a: "Auto Nejma est une entreprise marocaine spécialisée dans la vente de voitures neuves et reconnue comme un acteur majeur du marché." },
+            { q: "Quelles sont vos marques ?", a: "Nous distribuons officiellement Mercedes-Benz, BYD et smart." },
+            { q: "Quels sont vos services ?", a: "Nous proposons la vente, l'après-vente, la maintenance et les pièces de rechange d'origine." },
+            { q: "Où êtes-vous présents ?", a: "Nos showrooms sont situés à Casablanca, Rabat, Marrakech, Tanger et Agadir." },
+            { q: "Quel est votre positionnement ?", a: "Nous sommes leaders sur le segment haut de gamme et les véhicules électriques." },
+            { q: "Quelle est votre stratégie ?", a: "Notre stratégie repose sur la digitalisation et l'innovation constante." }
+        ];
+
+        const chatFlow = document.getElementById('chatFlow');
+        const faqGrid = document.getElementById('faqGrid');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // Initialisation des boutons
+        function init() {
+            CONTENT.forEach((item, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'faq-button';
+                btn.textContent = item.q;
+                btn.addEventListener('click', () => handleRequest(index));
+                faqGrid.appendChild(btn);
+            });
+        }
+
+        // Gestion du clic
+        function handleRequest(index) {
+            const userQ = CONTENT[index].q;
+            const botA = CONTENT[index].a;
+
+            // Afficher la question de l'utilisateur
+            renderBubble(userQ, 'user-bubble');
+
+            // Désactiver les boutons pendant l'animation
+            toggleButtons(false);
+
+            // Simulation de frappe
+            setTimeout(() => {
+                typingIndicator.style.display = 'block';
+                scrollChat();
+
+                setTimeout(() => {
+                    typingIndicator.style.display = 'none';
+                    renderBubble(botA, 'bot-bubble');
+                    toggleButtons(true);
+                }, 1000);
+            }, 300);
+        }
+
+        function renderBubble(text, type) {
+            const div = document.createElement('div');
+            div.className = `bubble ${type}`;
+            div.textContent = text;
+            chatFlow.appendChild(div);
+            scrollChat();
+        }
+
+        function scrollChat() {
+            chatFlow.scrollTop = chatFlow.scrollHeight;
+        }
+
+        function toggleButtons(state) {
+            const btns = document.querySelectorAll('.faq-button');
+            btns.forEach(b => {
+                b.style.pointerEvents = state ? 'auto' : 'none';
+                b.style.opacity = state ? '1' : '0.5';
+            });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
